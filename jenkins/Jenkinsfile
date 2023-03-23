@@ -8,13 +8,18 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                CI_ERROR = "Failed while building application"
+                script {
+                    CI_ERROR = "Failed while building application"
+                }                
+                
                 sh 'mvn -B -DskipTests clean package'
             }
         }
         stage('Test') {
             steps {
-                CI_ERROR = "Failed while running test"
+                script {
+                    CI_ERROR = "Failed while running test"
+                }                   
                 sh 'mvn test'
             }
             post {
@@ -25,7 +30,9 @@ pipeline {
         }
         stage('Deliver') {
             steps {
-                CI_ERROR = "Failed while deploying application"
+                script {
+                    CI_ERROR = "Failed while deploying application"
+                }
                 sh './jenkins/scripts/deliver.sh'
             }
         }
@@ -64,29 +71,29 @@ pipeline {
                 if (currentBuild.currentResult == 'SUCCESS') {
                     CI_ERROR = "NA"
                 }
-
-                sh """
-                    TODAY=`date +"%b %d"`
-                    sed -i "s/%%JOBNAME%%/${env.JOB_NAME}/g" jenkins/report.html
-                    sed -i "s/%%BUILDNO%%/${env.BUILD_NUMBER}/g" jenkins/report.html
-                    sed -i "s/%%DATE%%/\${TODAY}/g" jenkins/report.html
-                    sed -i "s/%%BUILD_STATUS%%/${BUILD_STATUS}/g" jenkins/report.html
-                    sed -i "s/%%ERROR%%/${CI_ERROR}/g" jenkins/report.html
-                    sed -i "s|%%CONSOLE_LOG%%|${CONSOLE_LOG}|g" jenkins/report.html
-                """
-
-                publishHTML(target:[
-                    allowMissing: true,
-                    alwaysLinkToLastBuild: true, 
-                    keepAll: true, 
-                    reportDir: "${WORKSPACE}", 
-                    reportFiles: 'report.html', 
-                    reportName: 'CI-Build-HTML-Report', 
-                    reportTitles: 'CI-Build-HTML-Report'
-                    ])
-
-                sendSlackNotifcation()
             }
+
+            sh """
+                TODAY=`date +"%b %d"`
+                sed -i "s/%%JOBNAME%%/${env.JOB_NAME}/g" jenkins/report.html
+                sed -i "s/%%BUILDNO%%/${env.BUILD_NUMBER}/g" jenkins/report.html
+                sed -i "s/%%DATE%%/\${TODAY}/g" jenkins/report.html
+                sed -i "s/%%BUILD_STATUS%%/${BUILD_STATUS}/g" jenkins/report.html
+                sed -i "s/%%ERROR%%/${CI_ERROR}/g" jenkins/report.html
+                sed -i "s|%%CONSOLE_LOG%%|${CONSOLE_LOG}|g" jenkins/report.html
+            """
+
+            publishHTML(target:[
+                allowMissing: true,
+                alwaysLinkToLastBuild: true, 
+                keepAll: true, 
+                reportDir: "${WORKSPACE}", 
+                reportFiles: 'report.html', 
+                reportName: 'CI-Build-HTML-Report', 
+                reportTitles: 'CI-Build-HTML-Report'
+                ])
+
+            sendSlackNotifcation()
         }
     }
 }
