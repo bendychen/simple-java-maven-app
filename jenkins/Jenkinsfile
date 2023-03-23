@@ -1,3 +1,35 @@
+Skip to content
+Search or jump to…
+Pull requests
+Issues
+Codespaces
+Marketplace
+Explore
+ 
+@bendychen 
+bendychen
+/
+simple-java-maven-app
+Public
+forked from jenkins-docs/simple-java-maven-app
+Fork your own copy of bendychen/simple-java-maven-app
+Code
+Pull requests
+Actions
+Projects
+Wiki
+Security
+Insights
+Settings
+simple-java-maven-app/jenkins/Jenkinsfile
+@bendychen
+bendychen Update Jenkinsfile
+Latest commit 2e454d8 7 minutes ago
+ History
+ 2 contributors
+@bendychen@gilesgas
+68 lines (62 sloc)  2.08 KB
+
 pipeline {
     agent {
         docker {
@@ -27,32 +59,61 @@ pipeline {
             }
         }
     }
+    // post {
+    //     always {
+    //         echo '====== Clean up workspace ======'
+    //         deleteDir() /* clean up our workspace */
+    //         echo '====== Workspace has been cleaned ======'
+    //     }
+
+    //     success {
+    //         echo '====== Pipeline ran successfully ======'
+    //         emailext to: 'bendy.chen@west.com',
+    //             subject: "Successfully run Jenkins Pipeline: ${currentBuild.fullDisplayName}",
+    //             body: "Build URL: ${env.BUILD_URL}"
+            
+    //         sendSlackNotifcation()
+    //     }
+
+    //     failure {
+    //         echo '====== Pipeline failed ======'
+
+    //         emailext to: 'bendy.chen@west.com',
+    //             subject: "Failed Jenkins Pipeline: ${currentBuild.fullDisplayName}",
+    //             body: "Something went wrong with ${env.BUILD_URL}, please check the Console Output for more details."
+            
+    //         sendSlackNotifcation()
+    //     }
+    // }
     post {
         always {
-            echo '====== Clean up workspace ======'
-            deleteDir() /* clean up our workspace */
-            echo '====== Workspace has been cleaned ======'
+            script {
+                CONSOLE_LOG = "${env.BUILD_URL}/console"
+                BUILD_STATUS = currentBuild.currentResult
+                if (currentBuild.currentResult == 'SUCCESS') {
+                    CI_ERROR = "NA"
+                }
+                sh """
+                    TODAY=`date +"%b %d"`
+                    sed -i "s/%%JOBNAME%%/${env.JOB_NAME}/g" report.html
+                    sed -i "s/%%BUILDNO%%/${env.BUILD_NUMBER}/g" report.html
+                    sed -i "s/%%DATE%%/\${TODAY}/g" report.html
+                    sed -i "s/%%BUILD_STATUS%%/${BUILD_STATUS}/g" report.html
+                    sed -i "s/%%ERROR%%/${CI_ERROR}/g" report.html
+                    sed -i "s|%%CONSOLE_LOG%%|${CONSOLE_LOG}|g" report.html
+                """
+                publishHTML(target:[
+                    allowMissing: true,
+                    alwaysLinkToLastBuild: true, 
+                    keepAll: true, 
+                    reportDir: "${WORKSPACE}", 
+                    reportFiles: 'report.html', 
+                    reportName: 'CI-Build-HTML-Report', 
+                    reportTitles: 'CI-Build-HTML-Report'
+                    ])
+                sendSlackNotifcation()
         }
-
-        success {
-            echo '====== Pipeline ran successfully ======'
-            emailext to: 'bendy.chen@west.com',
-                subject: "Successfully run Jenkins Pipeline: ${currentBuild.fullDisplayName}",
-                body: "Build URL: ${env.BUILD_URL}"
-            
-            sendSlackNotifcation()
-        }
-
-        failure {
-            echo '====== Pipeline failed ======'
-
-            emailext to: 'bendy.chen@west.com',
-                subject: "Failed Jenkins Pipeline: ${currentBuild.fullDisplayName}",
-                body: "Something went wrong with ${env.BUILD_URL}, please check the Console Output for more details."
-            
-            sendSlackNotifcation()
-        }
-    }    
+    }
 }
 
 def sendSlackNotifcation()
