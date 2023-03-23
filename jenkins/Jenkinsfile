@@ -8,11 +8,13 @@ pipeline {
     stages {
         stage('Build') {
             steps {
+                CI_ERROR = "Failed while building application"
                 sh 'mvn -B -DskipTests clean package'
             }
         }
         stage('Test') {
             steps {
+                CI_ERROR = "Failed while running test"
                 sh 'mvn test'
             }
             post {
@@ -23,6 +25,7 @@ pipeline {
         }
         stage('Deliver') {
             steps {
+                CI_ERROR = "Failed while deploying application"
                 sh './jenkins/scripts/deliver.sh'
             }
         }
