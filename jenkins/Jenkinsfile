@@ -47,5 +47,6 @@ pipeline {
             emailext to: 'bendy.chen@west.com',
                 subject: "Failed Jenkins Pipeline: ${currentBuild.fullDisplayName}",
                 body: "Something went wrong with ${env.BUILD_URL}, please check the Console Output for more details."
+        }
     }    
 }
