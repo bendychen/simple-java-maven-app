@@ -61,6 +61,7 @@ pipeline {
                 if (currentBuild.currentResult == 'SUCCESS') {
                     CI_ERROR = "NA"
                 }
+
                 sh """
                     TODAY=`date +"%b %d"`
                     sed -i "s/%%JOBNAME%%/${env.JOB_NAME}/g" report.html
@@ -70,6 +71,7 @@ pipeline {
                     sed -i "s/%%ERROR%%/${CI_ERROR}/g" report.html
                     sed -i "s|%%CONSOLE_LOG%%|${CONSOLE_LOG}|g" report.html
                 """
+
                 publishHTML(target:[
                     allowMissing: true,
                     alwaysLinkToLastBuild: true, 
@@ -79,7 +81,9 @@ pipeline {
                     reportName: 'CI-Build-HTML-Report', 
                     reportTitles: 'CI-Build-HTML-Report'
                     ])
+
                 sendSlackNotifcation()
+            }
         }
     }
 }
