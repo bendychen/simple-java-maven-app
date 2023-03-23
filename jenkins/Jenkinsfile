@@ -38,7 +38,9 @@ pipeline {
             echo '====== Pipeline ran successfully ======'
             emailext to: 'bendy.chen@west.com',
                 subject: "Successfully run Jenkins Pipeline: ${currentBuild.fullDisplayName}",
-                body: "Build URL: ${env.BUILD_URL}"            
+                body: "Build URL: ${env.BUILD_URL}"
+            
+            slackSend color : "good", message: "aaa", channel: '#cma-app-builder'
         }
 
         failure {
@@ -47,6 +49,8 @@ pipeline {
             emailext to: 'bendy.chen@west.com',
                 subject: "Failed Jenkins Pipeline: ${currentBuild.fullDisplayName}",
                 body: "Something went wrong with ${env.BUILD_URL}, please check the Console Output for more details."
+            
+            slackSend color : "danger", message: "bbb", channel: '#cma-app-builder'
         }
     }    
 }
