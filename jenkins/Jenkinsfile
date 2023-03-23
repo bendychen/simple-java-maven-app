@@ -35,8 +35,10 @@ pipeline {
                 }
                 sh './jenkins/scripts/deliver.sh'
             }
-        }
+        }       
     }
+
+    
     // post {
     //     always {
     //         echo '====== Clean up workspace ======'
@@ -87,11 +89,11 @@ pipeline {
                 allowMissing: true,
                 alwaysLinkToLastBuild: true, 
                 keepAll: true, 
-                reportDir: "${WORKSPACE}", 
+                reportDir: "${WORKSPACE}/jenkins", 
                 reportFiles: 'report.html', 
                 reportName: 'CI-Build-HTML-Report', 
                 reportTitles: 'CI-Build-HTML-Report'
-                ])
+            ])
 
             sendSlackNotifcation()
         }
