@@ -40,7 +40,7 @@ pipeline {
                 subject: "Successfully run Jenkins Pipeline: ${currentBuild.fullDisplayName}",
                 body: "Build URL: ${env.BUILD_URL}"
             
-            slackSend color : "good", message: "aaa", channel: 'cma-app-builder'
+            sendSlackNotifcation()
         }
 
         failure {
@@ -50,7 +50,19 @@ pipeline {
                 subject: "Failed Jenkins Pipeline: ${currentBuild.fullDisplayName}",
                 body: "Something went wrong with ${env.BUILD_URL}, please check the Console Output for more details."
             
-            slackSend color : "danger", message: "bbb", channel: 'cma-app-builder'
+            sendSlackNotifcation()
         }
     }    
+}
+
+def sendSlackNotifcation()
+{
+    if ( currentBuild.currentResult == "SUCCESS" ) {
+        buildSummary = "Job: ${env.JOB_NAME}\n Status: *SUCCESS*\n Build Report: ${env.BUILD_URL}CI-Build-HTML-Report"
+        slackSend color : "good", message: "${buildSummary}", channel: 'cma-app-builder'
+    }
+    else {
+        buildSummary = "Job: ${env.JOB_NAME}\n Status: *FAILURE*\n Error description: *${CI_ERROR}* \nBuild Report :${env.BUILD_URL}CI-Build-HTML-Report"
+        slackSend color : "danger", message: "${buildSummary}", channel: 'cma-app-builder'
+    }
 }
