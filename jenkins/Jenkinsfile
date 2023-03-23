@@ -36,7 +36,7 @@ pipeline {
 
         success {
             echo '====== Pipeline ran successfully ======'
-            mail to: 'paris.huang@west.com',
+            emailext to: 'paris.huang@west.com',
                 subject: "Successfully run Jenkins Pipeline: ${currentBuild.fullDisplayName}",
                 body: "Build URL: ${env.BUILD_URL}"            
         }
@@ -44,9 +44,8 @@ pipeline {
         failure {
             echo '====== Pipeline failed ======'
 
-            mail to: 'paris.huang@west.com',
+            emailext to: 'bendy.chen@west.com',
                 subject: "Failed Jenkins Pipeline: ${currentBuild.fullDisplayName}",
                 body: "Something went wrong with ${env.BUILD_URL}, please check the Console Output for more details."
-        }
     }    
 }
