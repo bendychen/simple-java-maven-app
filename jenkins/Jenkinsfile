@@ -27,4 +27,26 @@ pipeline {
             }
         }
     }
+    post {
+        always {
+            echo '====== Clean up workspace ======'
+            deleteDir() /* clean up our workspace */
+            echo '====== Workspace has been cleaned ======'
+        }
+
+        success {
+            echo '====== Pipeline ran successfully ======'
+            mail to: 'paris.huang@west.com',
+                subject: "Successfully run Jenkins Pipeline: ${currentBuild.fullDisplayName}",
+                body: "Build URL: ${env.BUILD_URL}"            
+        }
+
+        failure {
+            echo '====== Pipeline failed ======'
+
+            mail to: 'paris.huang@west.com',
+                subject: "Failed Jenkins Pipeline: ${currentBuild.fullDisplayName}",
+                body: "Something went wrong with ${env.BUILD_URL}, please check the Console Output for more details."
+        }
+    }    
 }
