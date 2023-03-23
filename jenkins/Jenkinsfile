@@ -36,7 +36,7 @@ pipeline {
 
         success {
             echo '====== Pipeline ran successfully ======'
-            emailext to: 'paris.huang@west.com',
+            emailext to: 'bendy.chen@west.com',
                 subject: "Successfully run Jenkins Pipeline: ${currentBuild.fullDisplayName}",
                 body: "Build URL: ${env.BUILD_URL}"            
         }
